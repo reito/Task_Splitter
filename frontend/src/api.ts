@@ -1,4 +1,4 @@
-import { Plan, CreatePlanRequest, UpdateTaskRequest } from './types';
+import type { Plan, CreatePlanRequest, UpdateTaskRequest } from './types';
 
 const API_BASE_URL = 'http://localhost:3000/api/v1';
 

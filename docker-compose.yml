@@ -30,7 +30,7 @@ services:
     tty: true
 
   frontend:
-    image: node:18
+    image: node:20
     working_dir: /app
     command: sh -c "yarn install && yarn dev --host 0.0.0.0"
     volumes:

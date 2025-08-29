@@ -1,0 +1,17 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  plan: one
+  date: 2025-08-29
+  title: MyString
+  est_minutes: 1
+  done: false
+  order_index: 1
+
+two:
+  plan: two
+  date: 2025-08-29
+  title: MyString
+  est_minutes: 1
+  done: false
+  order_index: 1

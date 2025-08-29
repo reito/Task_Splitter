@@ -36,12 +36,30 @@ export default function InputForm({ onSubmit, loading }: InputFormProps) {
     });
   };
 
+  const inputStyle = {
+    width: '100%',
+    padding: '12px',
+    marginTop: '5px',
+    backgroundColor: '#ffffff',
+    border: '1px solid #ddd',
+    borderRadius: '4px',
+    fontSize: '14px',
+    boxSizing: 'border-box' as const
+  };
+
+  const labelStyle = {
+    display: 'block',
+    marginBottom: '5px',
+    fontWeight: '500',
+    color: '#333'
+  };
+
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
-      <h1>TaskSplitter</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+    <div className="input-form-container">
+      <h1 style={{ textAlign: 'center', marginBottom: '30px', color: '#333' }}>TaskSplitter</h1>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <div>
-          <label htmlFor="title">タスク名 *</label>
+          <label htmlFor="title" style={labelStyle}>タスク名 *</label>
           <input
             id="title"
             type="text"
@@ -49,49 +67,53 @@ export default function InputForm({ onSubmit, loading }: InputFormProps) {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="例: 管理画面の実装"
             required
-            style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+            style={inputStyle}
           />
         </div>
 
         <div>
-          <label htmlFor="description">概要</label>
+          <label htmlFor="description" style={labelStyle}>概要</label>
           <textarea
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="例: RailsでAdmin CRUD + 認可"
             rows={3}
-            style={{ width: '100%', padding: '8px', marginTop: '5px', resize: 'vertical' }}
+            style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
           />
         </div>
 
-        <div style={{ display: 'flex', gap: '15px' }}>
-          <div style={{ flex: 1 }}>
-            <label htmlFor="start_date">開始日</label>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
+          gap: '15px' 
+        }}>
+          <div>
+            <label htmlFor="start_date" style={labelStyle}>開始日</label>
             <input
               id="start_date"
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+              style={inputStyle}
             />
           </div>
 
-          <div style={{ flex: 1 }}>
-            <label htmlFor="due_date">期限 *</label>
+          <div>
+            <label htmlFor="due_date" style={labelStyle}>期限 *</label>
             <input
               id="due_date"
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
               required
-              style={{ width: '100%', padding: '8px', marginTop: '5px' }}
+              style={inputStyle}
             />
           </div>
         </div>
 
         <div>
-          <label htmlFor="daily_hours">1日の作業時間 (時間)</label>
+          <label htmlFor="daily_hours" style={labelStyle}>1日の作業時間 (時間)</label>
           <input
             id="daily_hours"
             type="number"
@@ -99,7 +121,7 @@ export default function InputForm({ onSubmit, loading }: InputFormProps) {
             max="12"
             value={dailyHours}
             onChange={(e) => setDailyHours(Number(e.target.value))}
-            style={{ width: '100px', padding: '8px', marginTop: '5px' }}
+            style={{ ...inputStyle, width: '150px' }}
           />
         </div>
 
@@ -107,13 +129,16 @@ export default function InputForm({ onSubmit, loading }: InputFormProps) {
           type="submit"
           disabled={loading}
           style={{
-            padding: '12px 24px',
+            padding: '15px 30px',
             backgroundColor: loading ? '#ccc' : '#007bff',
             color: 'white',
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: '6px',
             fontSize: '16px',
+            fontWeight: '500',
             cursor: loading ? 'not-allowed' : 'pointer',
+            transition: 'background-color 0.2s',
+            marginTop: '10px'
           }}
         >
           {loading ? '生成中...' : '生成する'}

@@ -40,22 +40,31 @@ export default function PlanBoard({ plan, onTaskToggle, onRegenerate, onShowJson
   );
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '20px' }}>
-      <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2>{plan.title}</h2>
-          {plan.description && <p style={{ color: '#666' }}>{plan.description}</p>}
+    <div className="plan-board-container">
+      <div style={{ 
+        marginBottom: '20px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start',
+        flexWrap: 'wrap',
+        gap: '15px'
+      }}>
+        <div style={{ flex: '1', minWidth: '300px' }}>
+          <h2 style={{ margin: '0 0 10px 0', fontSize: '24px' }}>{plan.title}</h2>
+          {plan.description && <p style={{ color: '#666', margin: 0 }}>{plan.description}</p>}
         </div>
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
           <button
             onClick={onRegenerate}
             style={{
-              padding: '8px 16px',
+              padding: '10px 16px',
               backgroundColor: '#28a745',
               color: 'white',
               border: 'none',
-              borderRadius: '4px',
+              borderRadius: '6px',
               cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
             }}
           >
             再生成
@@ -63,12 +72,14 @@ export default function PlanBoard({ plan, onTaskToggle, onRegenerate, onShowJson
           <button
             onClick={onShowJson}
             style={{
-              padding: '8px 16px',
+              padding: '10px 16px',
               backgroundColor: '#6c757d',
               color: 'white',
               border: 'none',
-              borderRadius: '4px',
+              borderRadius: '6px',
               cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500'
             }}
           >
             JSON表示
@@ -101,7 +112,7 @@ export default function PlanBoard({ plan, onTaskToggle, onRegenerate, onShowJson
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: `repeat(${allDates.length}, 1fr)`,
+        gridTemplateColumns: allDates.length > 4 ? 'repeat(auto-fit, minmax(250px, 1fr))' : `repeat(${allDates.length}, 1fr)`,
         gap: '15px',
         overflowX: 'auto'
       }}>

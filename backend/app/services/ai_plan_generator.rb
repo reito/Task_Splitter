@@ -5,13 +5,13 @@ class AiPlanGenerator
 
   def initialize(plan)
     @plan = plan
-    @client = OpenAI::Client.new(access_token: ENV['OPENAI_API_KEY'])
   end
 
   def call
     return fallback_plan if ENV['OPENAI_API_KEY'].blank?
 
     begin
+      @client = OpenAI::Client.new(api_key: ENV['OPENAI_API_KEY'])
       response = @client.chat(
         parameters: {
           model: "gpt-4o-mini",

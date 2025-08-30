@@ -1,4 +1,13 @@
 class Api::V1::PlanTasksController < ApplicationController
+  def destroy
+    plan = Plan.find(params[:plan_id])
+    task = plan.plan_tasks.find(params[:id])
+    task.destroy
+    render json: { message: "Task deleted successfully" }
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Task not found" }, status: :not_found
+  end
+
   def update
     plan = Plan.find(params[:plan_id])
     task = plan.plan_tasks.find(params[:id])
@@ -23,6 +32,6 @@ class Api::V1::PlanTasksController < ApplicationController
   private
 
   def task_params
-    params.require(:task).permit(:done)
+    params.require(:task).permit(:done, :title, :description, :est_minutes)
   end
 end

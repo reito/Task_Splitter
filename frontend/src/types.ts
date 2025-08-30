@@ -6,6 +6,11 @@ export interface Plan {
   due_date: string;
   daily_hours: number;
   tasks_by_date: Record<string, PlanTask[]>;
+  // プラン一覧用の追加フィールド
+  task_count?: number;
+  completed_count?: number;
+  progress?: number;
+  created_at?: string;
 }
 
 export interface PlanTask {
@@ -26,5 +31,8 @@ export interface CreatePlanRequest {
 }
 
 export interface UpdateTaskRequest {
-  done: boolean;
+  done?: boolean;
+  title?: string;
+  description?: string;
+  est_minutes?: number;
 }

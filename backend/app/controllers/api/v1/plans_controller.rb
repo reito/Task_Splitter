@@ -1,4 +1,17 @@
 class Api::V1::PlansController < ApplicationController
+  def index
+    plans = Plan.order(created_at: :desc)
+    render json: plans.map { |plan| format_plan_list_item(plan) }
+  end
+
+  def destroy
+    plan = Plan.find(params[:id])
+    plan.destroy
+    render json: { message: "Plan deleted successfully" }
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "Plan not found" }, status: :not_found
+  end
+
   def create
     plan_params_with_defaults = plan_params.merge(
       start_date: plan_params[:start_date] || Date.current,
@@ -36,6 +49,23 @@ class Api::V1::PlansController < ApplicationController
 
   def plan_params
     params.require(:plan).permit(:title, :description, :start_date, :due_date, :daily_hours)
+  end
+
+  def format_plan_list_item(plan)
+    task_count = plan.plan_tasks.count
+    completed_count = plan.plan_tasks.where(done: true).count
+    
+    {
+      id: plan.id,
+      title: plan.title,
+      description: plan.description,
+      start_date: plan.start_date,
+      due_date: plan.due_date,
+      task_count: task_count,
+      completed_count: completed_count,
+      progress: task_count > 0 ? (completed_count.to_f / task_count * 100).round : 0,
+      created_at: plan.created_at
+    }
   end
 
   def format_plan_response(plan)

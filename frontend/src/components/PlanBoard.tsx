@@ -19,21 +19,41 @@ export default function PlanBoard({ plan, onTaskToggle, onRegenerate, onShowJson
   };
 
   const renderTask = (task: PlanTask) => (
-    <li key={task.id} style={{ margin: '8px 0' }}>
-      <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
-        <input
-          type="checkbox"
-          checked={task.done}
-          onChange={(e) => onTaskToggle(task.id, e.target.checked)}
-          style={{ marginRight: '8px' }}
-        />
-        <span style={{ textDecoration: task.done ? 'line-through' : 'none', opacity: task.done ? 0.6 : 1 }}>
-          {task.title}
-        </span>
-        {task.est_minutes && (
-          <span style={{ marginLeft: '8px', fontSize: '0.8em', color: '#666' }}>
-            ({task.est_minutes}分)
+    <li key={task.id} style={{ margin: '12px 0', padding: '12px', backgroundColor: '#fff', borderRadius: '6px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+      <label style={{ display: 'block', cursor: 'pointer' }}>
+        <div style={{ display: 'flex', alignItems: 'center', marginBottom: task.description ? '8px' : 0 }}>
+          <input
+            type="checkbox"
+            checked={task.done}
+            onChange={(e) => onTaskToggle(task.id, e.target.checked)}
+            style={{ marginRight: '8px' }}
+          />
+          <span style={{ 
+            fontWeight: '500',
+            fontSize: '14px',
+            textDecoration: task.done ? 'line-through' : 'none', 
+            opacity: task.done ? 0.6 : 1 
+          }}>
+            {task.title}
           </span>
+          {task.est_minutes && (
+            <span style={{ marginLeft: 'auto', fontSize: '0.8em', color: '#666' }}>
+              {task.est_minutes}分
+            </span>
+          )}
+        </div>
+        {task.description && (
+          <p style={{ 
+            marginLeft: '24px', 
+            fontSize: '12px', 
+            color: '#555', 
+            lineHeight: '1.4',
+            margin: '0',
+            opacity: task.done ? 0.6 : 1,
+            textDecoration: task.done ? 'line-through' : 'none'
+          }}>
+            {task.description}
+          </p>
         )}
       </label>
     </li>

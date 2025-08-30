@@ -77,9 +77,21 @@ export default function InputForm({ onSubmit, loading }: InputFormProps) {
             id="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="例: RailsでAdmin CRUD + 認可"
-            rows={3}
-            style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit' }}
+            placeholder={`以下の情報を含めると、より詳細なタスク分割ができます：
+
+【技術スタック】使用する言語、フレームワーク、ライブラリ
+例：Ruby on Rails 7.0, React 18, TypeScript, TailwindCSS
+
+【機能詳細】実装する具体的な機能
+例：ユーザー管理（CRUD）、権限管理（admin/user）、メール通知
+
+【現状】現在の実装状況
+例：基本的なモデルは作成済み、UIは未実装
+
+【ゴール】完成時の状態
+例：管理者がユーザー情報を一覧・編集でき、権限の変更が可能`}
+            rows={8}
+            style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit', fontSize: '13px' }}
           />
         </div>
 

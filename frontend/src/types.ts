@@ -11,6 +11,7 @@ export interface Plan {
 export interface PlanTask {
   id: number;
   title: string;
+  description?: string;
   est_minutes?: number;
   done: boolean;
   order_index: number;

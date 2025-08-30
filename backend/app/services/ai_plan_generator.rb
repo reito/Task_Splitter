@@ -8,10 +8,17 @@ class AiPlanGenerator
   end
 
   def call
-    return fallback_plan if ENV['OPENAI_API_KEY'].blank?
+    Rails.logger.info "OpenAI API Key present: #{ENV['OPENAI_API_KEY'].present?}"
+    Rails.logger.info "OpenAI API Key length: #{ENV['OPENAI_API_KEY']&.length || 0}"
+    
+    if ENV['OPENAI_API_KEY'].blank?
+      Rails.logger.info "Using fallback due to missing API key"
+      return fallback_plan
+    end
 
     begin
-      @client = OpenAI::Client.new(api_key: ENV['OPENAI_API_KEY'])
+      Rails.logger.info "Attempting OpenAI API call"
+      @client = OpenAI::Client.new(access_token: ENV['OPENAI_API_KEY'])
       response = @client.chat(
         parameters: {
           model: "gpt-4o-mini",
@@ -33,8 +40,16 @@ class AiPlanGenerator
         model: "gpt-4o-mini",
         raw_response: json_response
       }
+    rescue Faraday::TooManyRequestsError => e
+      Rails.logger.error "Rate limit error: #{e.message}"
+      Rails.logger.error "Response body: #{e.response[:body]}" if e.response
+      # 30秒待機してリトライ
+      sleep(30)
+      retry if (@retry_count ||= 0) < 1 && (@retry_count += 1)
+      fallback_plan
     rescue => e
       Rails.logger.error "AI Plan Generation failed: #{e.message}"
+      Rails.logger.error "Full error: #{e.inspect}"
       fallback_plan
     end
   end
@@ -42,38 +57,28 @@ class AiPlanGenerator
   private
 
   def system_prompt
-    <<~PROMPT
-      あなたはタスク分解と日程割り当ての専門家です。出力は必ず指定のJSONスキーマに厳密準拠で返してください。タイムゾーンはAsia/Tokyo。開始日から期限までの範囲で、1日の作業上限時間（hours_per_day）を超えないように、小タスクを日付ごとに割り当てます。小タスクは実行可能な粒度にしてください。
-    PROMPT
+    "ソフトウェアエンジニア向けタスク分解専門家。実装可能な具体的作業に分割。JSONスキーマ厳守。15-60分単位。"
   end
 
   def user_prompt
     <<~PROMPT
       タイトル: #{@plan.title}
       概要: #{@plan.description}
-      開始日: #{@plan.start_date}
-      期限: #{@plan.due_date}
-      1日作業時間: #{@plan.daily_hours} 時間
-      出力スキーマ:
-      {
-        "plan": {
-          "model": "string",
-          "assumptions": "string", 
-          "days": [
-            {
-              "date": "YYYY-MM-DD",
-              "tasks": [
-                {"title": "string", "est_minutes": number}
-              ]
-            }
-          ]
-        }
-      }
-      制約:
-      - days は開始日〜期限の連続日付を使う
-      - 各日の合計 est_minutes ≤ daily_hours*60
-      - タスク名は行動ベース（例: "モデル定義とマイグレーション作成"）
-      - 返答はJSONのみ（説明文なし）
+      開始日: #{@plan.start_date}〜期限: #{@plan.due_date} (#{(@plan.due_date - @plan.start_date).to_i + 1}日間)
+      1日作業時間: #{@plan.daily_hours}時間
+
+      JSON形式で出力:
+      {"plan":{"days":[{"date":"YYYY-MM-DD","tasks":[{"title":"作業名","description":"具体内容","est_minutes":30}]}]}}
+
+      制約: 
+      - 必ず開始日から期限まで連続した全#{(@plan.due_date - @plan.start_date).to_i + 1}日分のdaysを作成
+      - 各日のタスク15-60分単位、1日合計≤#{@plan.daily_hours * 60}分
+      - エンジニアが実際に手を動かせる具体作業のみ
+      - 例: "ユーザーモデル作成(30分)", "APIテスト実装(45分)"
+      - titleは20文字以内、descriptionは技術詳細含む50-200文字
+      - 機能実装は「調査→実装→テスト」の順で分割
+      - 実装順序と依存関係を考慮
+      - 作業量を全期間に適切に分散（短期間なら集中、長期間なら余裕を持って分散）
     PROMPT
   end
 
@@ -84,6 +89,7 @@ class AiPlanGenerator
         @plan.plan_tasks.create!(
           date: date,
           title: task["title"],
+          description: task["description"],
           est_minutes: task["est_minutes"],
           order_index: index
         )
@@ -106,10 +112,11 @@ class AiPlanGenerator
       
       day_tasks = basic_tasks.slice(start_index, task_count) || []
       
-      day_tasks.each_with_index do |task_title, index|
+      day_tasks.each_with_index do |task_info, index|
         @plan.plan_tasks.create!(
           date: Date.parse(date),
-          title: task_title,
+          title: task_info[:title],
+          description: task_info[:description],
           est_minutes: daily_minutes / day_tasks.length,
           order_index: index
         )
@@ -137,15 +144,36 @@ class AiPlanGenerator
   def expand_keyword_to_tasks(keyword)
     case keyword
     when /設計|design/
-      ["要件整理", "設計書作成", "技術選定"]
+      [
+        { title: "要件定義と調査", description: "必要な機能の洗い出し、技術的な実現可能性の調査、既存コードベースの確認を行う" },
+        { title: "設計書作成", description: "クラス図、シーケンス図、DB設計、APIインターフェース定義などの技術設計書を作成" },
+        { title: "技術選定と環境構築", description: "使用するライブラリ/フレームワークの選定、開発環境のセットアップ、プロジェクト初期設定" }
+      ]
     when /実装|開発|implementation/
-      ["基本実装", "機能追加", "統合実装"]
+      [
+        { title: "データモデル作成", description: "必要なテーブル設計、ActiveRecord モデル作成、アソシエーション定義" },
+        { title: "マイグレーション作成", description: "DB スキーマ定義、外部キー制約、インデックス設定、初期データ投入" },
+        { title: "バリデーション実装", description: "モデルレベルのバリデーション、独自バリデータ作成、エラーメッセージ設定" },
+        { title: "コントローラー作成", description: "CRUD アクション実装、パラメータ制御、レスポンス形式定義" },
+        { title: "API エンドポイント実装", description: "ルーティング設定、JSON レスポンス、HTTP ステータスコード処理" },
+        { title: "フロントエンド画面実装", description: "React コンポーネント作成、状態管理、フォームバリデーション" },
+        { title: "API 連携実装", description: "fetch/axios 実装、エラーハンドリング、ローディング状態管理" }
+      ]
     when /テスト|test/
-      ["単体テスト", "結合テスト"]
+      [
+        { title: "単体テスト作成", description: "モデル、サービス、コントローラーのユニットテスト作成。カバレッジ80%以上を目標" },
+        { title: "統合テスト作成", description: "E2Eテスト、APIテスト、画面遷移テストの作成。主要なユーザーフローをカバー" }
+      ]
     when /デプロイ|deploy/
-      ["デプロイ準備", "本番反映"]
+      [
+        { title: "デプロイ環境準備", description: "本番環境の設定、環境変数の設定、CI/CDパイプラインの構築、Dockerイメージの作成" },
+        { title: "本番デプロイと監視", description: "本番環境へのデプロイ実行、動作確認、ログ監視設定、アラート設定、パフォーマンス確認" }
+      ]
     else
-      ["#{keyword}の準備", "#{keyword}の実装"]
+      [
+        { title: "#{keyword}の調査", description: "#{keyword}に関する技術調査、実装方法の検討、ライブラリの選定、サンプルコードの確認" },
+        { title: "#{keyword}の実装", description: "#{keyword}機能の実装、テストコード作成、ドキュメント作成、レビュー対応" }
+      ]
     end
   end
 end

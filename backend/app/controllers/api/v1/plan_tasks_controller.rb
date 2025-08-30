@@ -7,6 +7,7 @@ class Api::V1::PlanTasksController < ApplicationController
       render json: {
         id: task.id,
         title: task.title,
+        description: task.description,
         est_minutes: task.est_minutes,
         done: task.done,
         order_index: task.order_index,

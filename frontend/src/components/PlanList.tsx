@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plan } from '../types';
 
-interface PlanListProps {
-  onSelectPlan: (plan: Plan) => void;
-  onCreateNew: () => void;
-}
-
-export const PlanList: React.FC<PlanListProps> = ({ onSelectPlan, onCreateNew }) => {
+export const PlanList: React.FC = () => {
+  const navigate = useNavigate();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -78,61 +75,178 @@ export const PlanList: React.FC<PlanListProps> = ({ onSelectPlan, onCreateNew })
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">プラン一覧</h1>
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: '#f8f9fa', 
+      padding: '20px'
+    }}>
+      <div style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto',
+        textAlign: 'center' as const,
+        marginBottom: '30px'
+      }}>
+        <h1 style={{ 
+          fontSize: '2rem', 
+          fontWeight: 'bold', 
+          color: '#333',
+          marginBottom: '20px'
+        }}>
+          プラン一覧
+        </h1>
         <button
-          onClick={onCreateNew}
-          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          onClick={() => navigate('/create')}
+          style={{
+            padding: '12px 24px',
+            backgroundColor: '#007bff',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            fontSize: '16px',
+            fontWeight: '500',
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
+          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
         >
           新規プラン作成
         </button>
       </div>
 
       {plans.length === 0 ? (
-        <div className="text-center py-12">
-          <p className="text-gray-500 mb-4">プランがありません</p>
+        <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+          <p style={{ color: '#6c757d', marginBottom: '20px', fontSize: '16px' }}>
+            プランがありません
+          </p>
           <button
-            onClick={onCreateNew}
-            className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            onClick={() => navigate('/create')}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '16px',
+              fontWeight: '500',
+              cursor: 'pointer'
+            }}
           >
             最初のプランを作成
           </button>
         </div>
       ) : (
-        <div className="grid gap-4">
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+          gap: '20px',
+          maxWidth: '1200px',
+          margin: '0 auto'
+        }}>
           {plans.map((plan) => (
             <div
               key={plan.id}
-              onClick={() => onSelectPlan(plan)}
-              className="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow border border-gray-200"
+              onClick={() => navigate(`/plan/${plan.id}`)}
+              style={{
+                backgroundColor: 'white',
+                borderRadius: '12px',
+                padding: '20px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                cursor: 'pointer',
+                border: '1px solid #e9ecef',
+                transition: 'all 0.2s',
+                position: 'relative' as const
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.15)';
+                e.currentTarget.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
             >
-              <div className="flex justify-between items-start mb-3">
-                <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '600', 
+                  color: '#333', 
+                  margin: '0',
+                  flex: 1,
+                  marginRight: '10px'
+                }}>
+                  {plan.title}
+                </h3>
                 <button
                   onClick={(e) => deletePlan(plan.id, e)}
-                  className="text-red-500 hover:text-red-700 p-1"
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    color: '#dc3545',
+                    borderRadius: '4px'
+                  }}
                   title="削除"
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                 >
                   🗑️
                 </button>
               </div>
               
-              <p className="text-gray-600 mb-4 line-clamp-2">{plan.description}</p>
+              <p style={{ 
+                color: '#6c757d', 
+                marginBottom: '16px', 
+                fontSize: '14px',
+                lineHeight: '1.4',
+                display: '-webkit-box',
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+              }}>
+                {plan.description}
+              </p>
               
-              <div className="flex justify-between items-center text-sm text-gray-500 mb-3">
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center', 
+                fontSize: '12px', 
+                color: '#6c757d', 
+                marginBottom: '16px' 
+              }}>
                 <span>{plan.start_date} 〜 {plan.due_date}</span>
                 <span>{plan.task_count}個のタスク</span>
               </div>
 
-              <div className="flex items-center">
-                <div className="flex-1 bg-gray-200 rounded-full h-2 mr-3">
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{
+                  flex: 1,
+                  backgroundColor: '#e9ecef',
+                  borderRadius: '10px',
+                  height: '8px',
+                  marginRight: '12px',
+                  overflow: 'hidden'
+                }}>
                   <div
-                    className="bg-green-500 h-2 rounded-full transition-all"
-                    style={{ width: `${plan.progress}%` }}
+                    style={{
+                      backgroundColor: '#28a745',
+                      height: '100%',
+                      borderRadius: '10px',
+                      width: `${plan.progress}%`,
+                      transition: 'width 0.3s ease'
+                    }}
                   />
                 </div>
-                <span className="text-sm font-medium text-gray-700">
+                <span style={{ 
+                  fontSize: '12px', 
+                  fontWeight: '500', 
+                  color: '#495057',
+                  minWidth: '80px',
+                  textAlign: 'right' as const
+                }}>
                   {plan.completed_count}/{plan.task_count} ({plan.progress}%)
                 </span>
               </div>

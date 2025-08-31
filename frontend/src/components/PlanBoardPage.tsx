@@ -86,12 +86,66 @@ export const PlanBoardPage: React.FC = () => {
         </div>
       )}
       
-      <PlanBoard
-        plan={plan}
-        onTaskToggle={handleTaskToggle}
-        onRegenerate={handleRegenerate}
-        onShowJson={handleShowJson}
-      />
+      <div style={{ 
+        padding: '20px', 
+        maxWidth: '1200px', 
+        margin: '0 auto' 
+      }}>
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginBottom: '20px' 
+        }}>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#6c757d',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#5a6268'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#6c757d'}
+          >
+            ← プラン一覧へ戻る
+          </button>
+
+          <button
+            onClick={() => navigate(`/plan/${plan.id}`)}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#007bff',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '14px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0056b3'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#007bff'}
+          >
+            タスク詳細を見る →
+          </button>
+        </div>
+        
+        <PlanBoard
+          plan={plan}
+          onTaskToggle={handleTaskToggle}
+          onRegenerate={handleRegenerate}
+          onShowJson={handleShowJson}
+        />
+      </div>
     </div>
   );
 };

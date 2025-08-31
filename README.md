@@ -2,7 +2,7 @@
 
 ## 概要
 
-**Task Splitter** は、ソフトウェア開発プロジェクトの計画を AI によって自動的に具体的なタスクに分解し、効率的な開発スケジュールを作成するWebアプリケーションです。
+**Task Splitter** は、ソフトウェア開発プロジェクトの計画を AI によって自動的に具体的なタスクに分解し、効率的な開発スケジュールを作成するWebアプリケーションです。自分のように計画を立てるのが苦手でタスクの締め切りに間に合わせるのに精一杯な人に向けて作りました。
 
 ### 🎯 主な機能
 
@@ -19,16 +19,22 @@
 - 進捗率と完了タスク数をビジュアル表示
 - プランの削除・詳細表示
 
+<img width="1401" height="714" alt="Image" src="https://github.com/user-attachments/assets/3bb62b47-c2c6-49db-813d-149bfb3a0682" />
+
 ### タスク詳細画面  
 - プラン内の全タスクをカード形式で表示
 - 完了タスクには取り消し線表示
 - タスクの編集（タイトル・説明・所要時間）
 - タスクの削除・完了切り替え
 
+<img width="1412" height="711" alt="Image" src="https://github.com/user-attachments/assets/d1ae3e6d-a5e4-495b-9c83-0f7c77f4f7f4" />
+
 ### AI タスク生成画面
 - プロジェクトタイトル・概要・期間・作業時間を入力
 - AI が技術的に実装可能なタスクに自動分解
 - 15-60分の適切な粒度でタスク生成
+
+<img width="1394" height="715" alt="Image" src="https://github.com/user-attachments/assets/df90f5c8-d0a1-4e89-aa6c-5369ceda8cb3" />
 
 ## 🛠️ 技術スタック
 
@@ -76,11 +82,6 @@ docker-compose up -d
 # 初回のみ: データベース作成・マイグレーション
 docker-compose exec backend rails db:create db:migrate
 ```
-
-### 4. アクセス
-- **フロントエンド**: http://localhost:5173
-- **バックエンドAPI**: http://localhost:3000
-- **データベース**: localhost:5432
 
 ## 📱 使用方法
 
